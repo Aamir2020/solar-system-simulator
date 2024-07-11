@@ -5,6 +5,8 @@
 import math
 import time
 import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
 
 
 class celestial_object():
@@ -72,13 +74,40 @@ class Orbit:
             list_of_celestial_objects[index].update_coordinate(
                 list_of_final_coordinates[index])
 
+        return list_of_final_coordinates
+
+
+def update(frame):
+    # for each frame, update the data stored on each artist.
+    list_of_final_coordinates = Orbit.move_celestial_objects([Sun, Earth])
+    x = [coordinate[0] for coordinate in list_of_final_coordinates]
+    y = [coordinate[1] for coordinate in list_of_final_coordinates]
+    # update the scatter plot:
+    data = np.stack([x, y]).T
+    scat.set_offsets(data)
+    return scat
+
 
 if __name__ == '__main__':
     # This code won't run if this file is imported.
     Sun = celestial_object("Sun", [0, 0], [0, 0], 100)
     Earth = celestial_object("Earth", [100, 0], [0, 1], 1)
 
-    while (True):
-        Orbit.move_celestial_objects([Sun, Earth])
-        time.sleep(0.01)
-        print(f"Coordinate = {Earth.coordinate}  Velocity= {Earth.velocity}")
+    fig, ax = plt.subplots()
+
+    scat = ax.scatter(
+        Sun.coordinate[0], Sun.coordinate[1], c="b", s=5, label=f'Sun')
+    scat = ax.scatter(
+        Earth.coordinate[0], Earth.coordinate[1], c="r", s=5, label=f'Earth')
+    ax.set(xlim=[-1000, 1000], ylim=[-1000, 1000],
+           xlabel='x axis', ylabel='y axis')
+    ax.legend()
+
+    ani = animation.FuncAnimation(fig=fig, func=update, frames=40, interval=30)
+    plt.show()
+
+
+# while (True):
+#     Orbit.move_celestial_objects([Sun, Earth])
+#     time.sleep(0.01)
+#     print(f"Coordinate = {Earth.coordinate}  Velocity= {Earth.velocity}")
