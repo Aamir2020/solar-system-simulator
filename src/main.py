@@ -3,7 +3,6 @@
 # F=m*a
 # s = vi*t + 1/2*a*t^2
 import math
-import time
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
@@ -28,7 +27,7 @@ class Orbit:
 
     # Gravitational Constant
     Gravitational_Constant = 1
-    tick_rate = 15
+    tick_rate = 20
 
     @classmethod
     def move_celestial_objects(cls, list_of_celestial_objects):
@@ -78,32 +77,38 @@ class Orbit:
 
 
 def update(frame):
-    # for each frame, update the data stored on each artist.
-    list_of_final_coordinates = Orbit.move_celestial_objects([Sun, Earth])
+    list_of_final_coordinates = Orbit.move_celestial_objects(
+        [Sun, Earth, Mars])
     x = [coordinate[0] for coordinate in list_of_final_coordinates]
     y = [coordinate[1] for coordinate in list_of_final_coordinates]
-    # update the scatter plot:
-    data = np.stack([x, y]).T
-    scat.set_offsets(data)
-    return scat
+    scat_sun.set_offsets(list_of_final_coordinates[0])
+    scat_earth.set_offsets(list_of_final_coordinates[1])
+    scat_mars.set_offsets(list_of_final_coordinates[2])
+    return scat_sun, scat_earth, scat_mars
 
 
 if __name__ == '__main__':
     # This code won't run if this file is imported.
-    Sun = celestial_object("Sun", [0, 0], [0, 0], 100)
-    Earth = celestial_object("Earth", [100, 0], [0, 1], 1)
+    Sun = celestial_object("Sun", [0, 0], [0, 0], 1000)
+    Earth = celestial_object("Earth", [400, 0], [0, 1.5], 1)
+    Mars = celestial_object("Mars", [1000, 0], [0, 0.75], 1)
 
     fig, ax = plt.subplots()
 
-    scat = ax.scatter(
-        Sun.coordinate[0], Sun.coordinate[1], c="b", s=5, label=f'Sun')
-    scat = ax.scatter(
-        Earth.coordinate[0], Earth.coordinate[1], c="r", s=5, label=f'Earth')
-    ax.set(xlim=[-1000, 1000], ylim=[-1000, 1000],
+    scat_sun = ax.scatter(
+        Sun.coordinate[0], Sun.coordinate[1], c="y", s=200, label=f'Sun', marker='o')
+    scat_earth = ax.scatter(
+        Earth.coordinate[0], Earth.coordinate[1], c="b", s=20, label=f'Earth', marker='o')
+    scat_mars = ax.scatter(
+        Mars.coordinate[0], Mars.coordinate[1], c="r", s=20, label=f'Mars', marker='o')
+
+    ax.set(xlim=[-2000, 2000], ylim=[-2000, 2000],
            xlabel='x axis', ylabel='y axis')
+    # ax.set_xscale('log')
+    # ax.set_yscale('log')
     ax.legend()
 
-    ani = animation.FuncAnimation(fig=fig, func=update, frames=40, interval=30)
+    ani = animation.FuncAnimation(fig=fig, func=update, interval=30)
     plt.show()
 
 
