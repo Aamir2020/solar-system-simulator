@@ -4,6 +4,7 @@
 # s = vi*t + 1/2*a*t^2
 import math
 import numpy as np
+from EphemerisRequestHandler import Ephemeris_Request_Handler_Impl
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
@@ -26,8 +27,8 @@ class celestial_object():
 class Orbit:
 
     # Gravitational Constant
-    Gravitational_Constant = 1
-    tick_rate = 20
+    Gravitational_Constant = 6.67430*10**(-11)
+    time_step = 20
 
     @classmethod
     def move_celestial_objects(cls, list_of_celestial_objects):
@@ -56,10 +57,10 @@ class Orbit:
             acceleration = force/body_one.mass
 
             list_of_final_coordinates.append(
-                body_one.coordinate + body_one.velocity*cls.tick_rate + 0.5*(acceleration)*cls.tick_rate**2)
+                body_one.coordinate + body_one.velocity*cls.time_step + 0.5*(acceleration)*cls.time_step**2)
 
             list_of_final_velocities.append(
-                body_one.velocity + acceleration*cls.tick_rate)
+                body_one.velocity + acceleration*cls.time_step)
 
             # if body_one.name == "Earth":
             #     print(
@@ -89,9 +90,16 @@ def update(frame):
 
 if __name__ == '__main__':
     # This code won't run if this file is imported.
-    Sun = celestial_object("Sun", [0, 0], [0, 0], 1000)
+    coordinate, vector, mass = Ephemeris_Request_Handler_Impl.send_request(
+        "Sun")
+    Sun = celestial_object("Sun", coordinate, vector, mass)
     Earth = celestial_object("Earth", [400, 0], [0, 1.5], 1)
-    Mars = celestial_object("Mars", [1000, 0], [0, 0.75], 1)
+    coordinate, vector, mass = Ephemeris_Request_Handler_Impl.send_request(
+        "Mars")
+    Mars = celestial_object("Mars", coordinate, vector, mass)
+    coordinate, vector, mass = Ephemeris_Request_Handler_Impl.send_request(
+        "Earth")
+    Earth = celestial_object("Earth", coordinate, vector, mass)
 
     fig, ax = plt.subplots()
 
@@ -102,7 +110,7 @@ if __name__ == '__main__':
     scat_mars = ax.scatter(
         Mars.coordinate[0], Mars.coordinate[1], c="r", s=20, label=f'Mars', marker='o')
 
-    ax.set(xlim=[-2000, 2000], ylim=[-2000, 2000],
+    ax.set(xlim=[-1*10**12, 1*10**12], ylim=[-1*10**12, 1*10**12],
            xlabel='x axis', ylabel='y axis')
     # ax.set_xscale('log')
     # ax.set_yscale('log')
