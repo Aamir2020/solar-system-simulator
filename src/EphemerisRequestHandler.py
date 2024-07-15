@@ -1,7 +1,6 @@
 # Get Ephemeris of each planet
 import re
 import requests
-import numpy as np
 from datetime import datetime
 
 
