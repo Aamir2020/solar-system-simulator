@@ -13,6 +13,12 @@ Use `pip` package manager to install the required packages:
 ```bash
 python3 -m pip install -r requirements.txt
 ```
+To run the software, execute the following commands in the project directory
+
+```bash
+cd src
+python3 main.py
+```
 
 ## The following celestial objects will be displayed
 - Mercury
