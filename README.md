@@ -29,3 +29,6 @@ python3 main.py
 - Saturn
 - Uranus
 - Neptune
+<p align="center">
+ <img src="./demo.gif"
+</p>

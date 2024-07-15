@@ -6,7 +6,7 @@ class Orbit:
 
     # Gravitational Constant
     Gravitational_Constant = 6.67430*10**(-11)
-    time_step = 100000
+    time_step = 24*60*60
 
     @classmethod
     def move_celestial_objects(cls, list_of_celestial_objects):
