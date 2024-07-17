@@ -1,10 +1,10 @@
 
 # Solar System Simulator
-A two dimensional simulation of our solar system. Utilized n-body simulation and considered each object as a particle. This simulation doesn't include moons and asteroids. In addition, it doesn't take into account the rotation of planets or their roche limit.
+This is a one-to-one two-dimensional simulation of our solar system. I utilized gravitational N-body simulation for its implementaion. This simulation doesn't include moons and asteroids. In addition, it doesn't consider the rotation of planets or their Roche limit.
 
-The inital conditions for the planets are obtained from NASA's [horizon systems](https://ssd-api.jpl.nasa.gov/doc/horizons.html) API.
+The initial conditions for the planets are obtained from NASA's [horizon systems](https://ssd-api.jpl.nasa.gov/doc/horizons.html) API.
 
-The current simulation utilizes a simple Euler integration to find numerical solution for the gravitational interactions.
+The current simulation utilizes a leapfrog integration for numerically integrating gravitational differential.
 
 ## Installation
 
@@ -29,6 +29,14 @@ python3 main.py
 - Saturn
 - Uranus
 - Neptune
+
+## TODO
+- Add zooming functionality for the 2D map
+- Add background stars
+- Add pictures of the planets instead of circles
+- Fix the planet scaling issue when zooming
+- Include some sort of polar log coordinate system to make the inner planets easy to view
+  
 <p align="center">
  <img src="./demo.gif"
 </p>
