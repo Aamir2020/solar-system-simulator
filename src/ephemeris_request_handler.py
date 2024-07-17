@@ -4,7 +4,7 @@ import requests
 from datetime import datetime
 
 
-class Ephemeris_Request_Handler_Impl:
+class ephemeris_request_handler_impl:
 
     planetary_ids = {'Sun': [10, 1.989*10**30], 'Mercury': [199, 3.302*10**23], 'Venus': [299, 4.869*10**24],
                      'Earth': [399, 5.972*10**24], 'Mars': [499, 6.417*10**23], 'Jupiter': [599, 1.898*10**27],

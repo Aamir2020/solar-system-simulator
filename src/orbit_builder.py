@@ -2,7 +2,7 @@ import math
 import numpy as np
 
 
-class Orbit:
+class orbit:
 
     # Gravitational Constant
     Gravitational_Constant = 6.67430*10**(-11)
@@ -41,7 +41,7 @@ class Orbit:
             intermediate_velocities = body_one.velocity + acceleration*cls.time_step
 
             list_of_Intermediate_Orbital_State.append(
-                Intermediate_Orbital_State(intermediate_coordinate, body_one.coordinate, intermediate_velocities, body_one.velocity, force, body_one.mass))
+                intermediate_orbital_state(intermediate_coordinate, body_one.coordinate, intermediate_velocities, body_one.velocity, force, body_one.mass))
 
         for body_one in list_of_Intermediate_Orbital_State:
             force = np.array([0, 0], dtype=np.float64)
@@ -87,7 +87,7 @@ class Orbit:
         return list_of_final_coordinates
 
 
-class Intermediate_Orbital_State:
+class intermediate_orbital_state:
 
     def __init__(self, intermediate_coordinate, initial_coordinate, intermediate_velocity, initial_velocity, force, mass):
         self.intermediate_coordinate = np.array(

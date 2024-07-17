@@ -1,15 +1,15 @@
-from EphemerisRequestHandler import Ephemeris_Request_Handler_Impl
+from ephemeris_request_handler import ephemeris_request_handler_impl
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from collections import deque
-from CelestialObject import Celestial_object
-from Orbit_Calculator import Orbit
+from celestial_object import celestial_object
+from orbit_builder import orbit
 
 
 def update(frame):
     global sun_positions, earth_positions, mars_positions
 
-    list_of_final_coordinates = Orbit.move_celestial_objects(
+    list_of_final_coordinates = orbit.move_celestial_objects(
         [Sun, Mercury, Venus, Earth, Mars])
 
     scat_sun.set_offsets(list_of_final_coordinates[0])
@@ -18,14 +18,11 @@ def update(frame):
     scat_earth.set_offsets(list_of_final_coordinates[3])
     scat_mars.set_offsets(list_of_final_coordinates[4])
 
-    sun_positions.append(list_of_final_coordinates[0])
     mercury_positions.append(list_of_final_coordinates[1])
     venus_positions.append(list_of_final_coordinates[2])
     earth_positions.append(list_of_final_coordinates[3])
     mars_positions.append(list_of_final_coordinates[4])
 
-    sun_trace.set_data([coordinate[0] for coordinate in sun_positions],
-                       [coordinate[1] for coordinate in sun_positions])
     mercury_trace.set_data([coordinate[0] for coordinate in mercury_positions],
                            [coordinate[1] for coordinate in mercury_positions])
     venus_trace.set_data([coordinate[0] for coordinate in venus_positions],
@@ -46,32 +43,32 @@ def update(frame):
     mars_text.set_position(
         (list_of_final_coordinates[4][0] + text_offset, list_of_final_coordinates[4][1] + text_offset))
 
-    return scat_sun, scat_mercury, scat_venus, scat_earth, scat_mars, sun_trace, mercury_trace, venus_trace, earth_trace, mars_trace, sun_text, mercury_text, venus_text, earth_text, mars_text
+    return scat_sun, scat_mercury, scat_venus, scat_earth, scat_mars, mercury_trace, venus_trace, earth_trace, mars_trace, sun_text, mercury_text, venus_text, earth_text, mars_text
 
 
 if __name__ == '__main__':
 
     text_offset = 10**10
 
-    coordinate, vector, mass = Ephemeris_Request_Handler_Impl.send_request(
+    coordinate, vector, mass = ephemeris_request_handler_impl.send_request(
         "Sun")
-    Sun = Celestial_object("Sun", coordinate, vector, mass)
+    Sun = celestial_object("Sun", coordinate, vector, mass)
 
-    coordinate, vector, mass = Ephemeris_Request_Handler_Impl.send_request(
+    coordinate, vector, mass = ephemeris_request_handler_impl.send_request(
         "Mercury")
-    Mercury = Celestial_object("Mercury", coordinate, vector, mass)
+    Mercury = celestial_object("Mercury", coordinate, vector, mass)
 
-    coordinate, vector, mass = Ephemeris_Request_Handler_Impl.send_request(
+    coordinate, vector, mass = ephemeris_request_handler_impl.send_request(
         "Venus")
-    Venus = Celestial_object("Venus", coordinate, vector, mass)
+    Venus = celestial_object("Venus", coordinate, vector, mass)
 
-    coordinate, vector, mass = Ephemeris_Request_Handler_Impl.send_request(
+    coordinate, vector, mass = ephemeris_request_handler_impl.send_request(
         "Earth")
-    Earth = Celestial_object("Earth", coordinate, vector, mass)
+    Earth = celestial_object("Earth", coordinate, vector, mass)
 
-    coordinate, vector, mass = Ephemeris_Request_Handler_Impl.send_request(
+    coordinate, vector, mass = ephemeris_request_handler_impl.send_request(
         "Mars")
-    Mars = Celestial_object("Mars", coordinate, vector, mass)
+    Mars = celestial_object("Mars", coordinate, vector, mass)
 
     fig, ax = plt.subplots()
 
@@ -96,14 +93,12 @@ if __name__ == '__main__':
     mars_text = ax.text(
         Mars.coordinate[0] + text_offset, Mars.coordinate[1] + text_offset, "Mars")
 
-    sun_trace, = ax.plot([], [], 'k-', lw=1)
     mercury_trace, = ax.plot([], [], 'k-', lw=1)
     venus_trace, = ax.plot([], [], 'k-', lw=1)
     earth_trace, = ax.plot([], [], 'k-', lw=1)
     mars_trace, = ax.plot([], [], 'k-', lw=1)
 
     max_positions = 50
-    sun_positions = deque([Sun.coordinate], maxlen=max_positions)
     mercury_positions = deque([Mercury.coordinate], maxlen=max_positions)
     venus_positions = deque([Venus.coordinate], maxlen=max_positions)
     earth_positions = deque([Earth.coordinate], maxlen=max_positions)
@@ -114,5 +109,5 @@ if __name__ == '__main__':
     # ax.set_xscale('log')
     # ax.set_yscale('log')
 
-    ani = animation.FuncAnimation(fig=fig, func=update, interval=30)
+    ani = animation.FuncAnimation(fig=fig, frames=10, func=update, interval=30)
     plt.show()

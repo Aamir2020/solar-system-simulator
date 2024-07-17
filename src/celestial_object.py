@@ -1,7 +1,7 @@
 import numpy as np
 
 
-class Celestial_object():
+class celestial_object():
 
     def __init__(self, name, coordinate, velocity, mass):
         self.coordinate = np.array(coordinate, dtype=np.float64)
