@@ -6,6 +6,30 @@ from celestial_object import celestial_object
 from orbit_builder import orbit
 
 
+def zoom_factory(ax, base_scale):
+    def zoom(event):
+        current_xlim = ax.get_xlim()
+        current_ylim = ax.get_ylim()
+        current_xrange = (current_xlim[1] - current_xlim[0])*.5
+        current_yrange = (current_ylim[1] - current_ylim[0])*.5
+        xdata = event.xdata
+        ydata = event.ydata
+        if event.button == 'up':
+            scale_factor = 1/base_scale
+        elif event.button == 'down':
+            scale_factor = base_scale
+        else:
+            scale_factor = 1
+        ax.set_xlim([xdata - current_xrange*scale_factor,
+                     xdata + current_xrange*scale_factor])
+        ax.set_ylim([ydata - current_yrange*scale_factor,
+                     ydata + current_yrange*scale_factor])
+        ax.figure.canvas.draw_idle()
+    fig = ax.get_figure()
+    fig.canvas.mpl_connect('scroll_event', zoom)
+    return zoom
+
+
 def update(frame):
     global sun_positions, earth_positions, mars_positions
 
@@ -174,6 +198,8 @@ if __name__ == '__main__':
            xlabel='x axis', ylabel='y axis')
     # ax.set_xscale('log')
     # ax.set_yscale('log')
+    scale = 1.1
+    zoom_factory_return = zoom_factory(ax, base_scale=scale)
 
     ani = animation.FuncAnimation(fig=fig, frames=10, func=update, interval=30)
     plt.show()
