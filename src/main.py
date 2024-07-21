@@ -20,6 +20,7 @@ def zoom_factory(ax, base_scale):
             scale_factor = base_scale
         else:
             scale_factor = 1
+        # upheight = xdata
         ax.set_xlim([xdata - current_xrange*scale_factor,
                      xdata + current_xrange*scale_factor])
         ax.set_ylim([ydata - current_yrange*scale_factor,

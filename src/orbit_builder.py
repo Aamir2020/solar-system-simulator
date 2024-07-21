@@ -19,22 +19,16 @@ class orbit:
         # Finds half step velocity and full step orbital elements
         for body_one in list_of_celestial_objects:
             force = np.array([0, 0], dtype=np.float64)
-            force_angle = 0
             for body_two in list_of_celestial_objects:
                 if np.array_equal(body_one.coordinate, body_two.coordinate):
                     continue
-
-                distance_squared = ((body_one.coordinate[0] - body_two.coordinate[0])**2 +
-                                    (body_one.coordinate[1] - body_two.coordinate[1])**2)
-                if distance_squared == 0:
-                    continue
-
+                distance_between_bodies = body_two.coordinate - body_one.coordinate
+                magnitude_of_distance = math.sqrt(
+                    distance_between_bodies[0]**2 + distance_between_bodies[1]**2)
+                direction_of_force = distance_between_bodies/magnitude_of_distance
                 magnitude_of_force = cls.Gravitational_Constant * \
-                    body_one.mass*body_two.mass / distance_squared
-                force_angle = math.atan2(
-                    (body_two.coordinate[1] - body_one.coordinate[1]), (body_two.coordinate[0] - body_one.coordinate[0]))
-                force[0] += magnitude_of_force*math.cos(force_angle)
-                force[1] += magnitude_of_force*math.sin(force_angle)
+                    body_one.mass*body_two.mass / magnitude_of_distance**2
+                force += magnitude_of_force*direction_of_force
 
             first_step_acceleration = force/body_one.mass
             first_step_velocity = body_one.coordinate + body_one.velocity * \
@@ -52,24 +46,19 @@ class orbit:
         # Finds acceleration for second step
         for body_one_index in range(len(list_of_first_step_orbital_elements)):
             force = np.array([0, 0], dtype=np.float64)
-            force_angle = 0
             for body_two_index in range(len(list_of_first_step_orbital_elements)):
                 if np.array_equal(list_of_first_step_orbital_elements[body_one_index].intermediate_coordinate, list_of_first_step_orbital_elements[body_two_index].intermediate_coordinate):
                     continue
-
-                distance_squared = ((list_of_first_step_orbital_elements[body_one_index].intermediate_coordinate[0] - list_of_first_step_orbital_elements[body_two_index].intermediate_coordinate[0])**2 +
-                                    (list_of_first_step_orbital_elements[body_one_index].intermediate_coordinate[1] - list_of_first_step_orbital_elements[body_two_index].intermediate_coordinate[1])**2)
-                if distance_squared == 0:
-                    continue
-
+                distance_between_bodies = list_of_first_step_orbital_elements[body_two_index].intermediate_coordinate - \
+                    list_of_first_step_orbital_elements[body_one_index].intermediate_coordinate
+                magnitude_of_distance = math.sqrt(
+                    distance_between_bodies[0]**2 + distance_between_bodies[1]**2)
+                direction_of_force = distance_between_bodies/magnitude_of_distance
                 magnitude_of_force = cls.Gravitational_Constant * \
                     list_of_celestial_objects[body_one_index].mass * \
                     list_of_celestial_objects[body_two_index].mass / \
-                    distance_squared
-                force_angle = math.atan2(
-                    (list_of_first_step_orbital_elements[body_two_index].intermediate_coordinate[1] - list_of_first_step_orbital_elements[body_one_index].intermediate_coordinate[1]), (list_of_first_step_orbital_elements[body_two_index].intermediate_coordinate[0] - list_of_first_step_orbital_elements[body_one_index].intermediate_coordinate[0]))
-                force[0] += magnitude_of_force*math.cos(force_angle)
-                force[1] += magnitude_of_force*math.sin(force_angle)
+                    magnitude_of_distance**2
+                force += magnitude_of_force*direction_of_force
 
             second_step_acceleration = force / \
                 list_of_celestial_objects[body_one_index].mass
