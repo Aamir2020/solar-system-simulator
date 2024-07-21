@@ -10,8 +10,6 @@ def zoom_factory(ax, base_scale):
     def zoom(event):
         current_xlim = ax.get_xlim()
         current_ylim = ax.get_ylim()
-        current_xrange = (current_xlim[1] - current_xlim[0])*.5
-        current_yrange = (current_ylim[1] - current_ylim[0])*.5
         xdata = event.xdata
         ydata = event.ydata
         if event.button == 'up':
@@ -20,11 +18,14 @@ def zoom_factory(ax, base_scale):
             scale_factor = base_scale
         else:
             scale_factor = 1
-        # upheight = xdata
-        ax.set_xlim([xdata - current_xrange*scale_factor,
-                     xdata + current_xrange*scale_factor])
-        ax.set_ylim([ydata - current_yrange*scale_factor,
-                     ydata + current_yrange*scale_factor])
+        up_height = (current_ylim[1] - ydata)*scale_factor
+        down_height = (ydata - current_ylim[0])*scale_factor
+        right_width = (current_xlim[1] - xdata)*scale_factor
+        left_width = (xdata - current_xlim[0])*scale_factor
+        ax.set_xlim([xdata - left_width,
+                     xdata + right_width])
+        ax.set_ylim([ydata - down_height,
+                     ydata + up_height])
         ax.figure.canvas.draw_idle()
     fig = ax.get_figure()
     fig.canvas.mpl_connect('scroll_event', zoom)
