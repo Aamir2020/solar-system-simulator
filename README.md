@@ -31,11 +31,11 @@ python3 main.py
 - Neptune
 
 ## TODO
-- Add zooming functionality for the 2D map
-- Add background stars
-- Add pictures of the planets instead of circles
-- Fix the planet scaling issue when zooming
-- Include some sort of polar log coordinate system to make the inner planets easy to view
+- ~~Add zooming functionality for the 2D map~~
+- ~~Add the ability to follow planets~~
+- ~~Fix the planet scaling issue when zooming~~
+- Fix text and planet scaling issue
+- Make the background black and add background stars
   
 <p align="center">
  <img src="./demo.gif"

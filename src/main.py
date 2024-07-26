@@ -4,6 +4,7 @@ import matplotlib.animation as animation
 from collections import deque
 from celestial_object import celestial_object
 from orbit_builder import orbit
+import numpy as np
 
 
 def zoom_factory(ax, base_scale):
@@ -32,9 +33,33 @@ def zoom_factory(ax, base_scale):
     return zoom
 
 
-def update(frame):
-    global sun_positions, earth_positions, mars_positions
+def pan_factory(ax):
+    def onPress(event):
+        if event.inaxes != ax:
+            return
+        xdata = event.xdata
+        ydata = event.ydata
+        position = np.array([xdata, ydata], dtype=np.float64)
+        list_of_bodies = [Sun, Mercury, Venus, Earth,
+                          Mars, Jupiter, Saturn, Uranus, Neptune]
+        global target
+        for object in list_of_bodies:
+            if abs(position[0]-object.coordinate[0]) < 0.1 * 10**11 and abs(position[0]-object.coordinate[0]) < 0.1 * 10**11:
+                target = object
+        cur_xlim = ax.get_xlim()
+        cur_ylim = ax.get_ylim()
+        cur_xrange = (cur_xlim[1] - cur_xlim[0])*.5
+        cur_yrange = (cur_ylim[1] - cur_ylim[0])*.5
+        ax.set_xlim([target.coordinate[0] - cur_xrange,
+                     target.coordinate[0] + cur_xrange])
+        ax.set_ylim([target.coordinate[1] - cur_yrange,
+                    target.coordinate[1] + cur_yrange])
+    fig = ax.get_figure()
+    fig.canvas.mpl_connect('button_press_event', onPress)
+    return onPress
 
+
+def update(frame):
     list_of_final_coordinates = orbit.move_celestial_objects(
         [Sun, Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, Neptune])
 
@@ -92,6 +117,15 @@ def update(frame):
         (list_of_final_coordinates[7][0] + text_offset, list_of_final_coordinates[7][1] + text_offset))
     neptune_text.set_position(
         (list_of_final_coordinates[8][0] + text_offset, list_of_final_coordinates[8][1] + text_offset))
+
+    cur_xlim = ax.get_xlim()
+    cur_ylim = ax.get_ylim()
+    cur_xrange = (cur_xlim[1] - cur_xlim[0])*.5
+    cur_yrange = (cur_ylim[1] - cur_ylim[0])*.5
+    ax.set_xlim([target.coordinate[0] - cur_xrange,
+                 target.coordinate[0] + cur_xrange])
+    ax.set_ylim([target.coordinate[1] - cur_yrange,
+                 target.coordinate[1] + cur_yrange])
 
     return scat_sun, scat_mercury, scat_venus, scat_earth, scat_mars, scat_jupiter, scat_saturn, scat_uranus, scat_neptune, \
         mercury_trace, venus_trace, earth_trace, mars_trace, jupiter_trace, saturn_trace, uranus_trace, neptune_trace, \
@@ -196,12 +230,15 @@ if __name__ == '__main__':
     uranus_positions = deque([Uranus.coordinate], maxlen=max_positions)
     neptune_positions = deque([Neptune.coordinate], maxlen=max_positions)
 
-    ax.set(xlim=[-6*10**12, 6*10**12], ylim=[-6*10**12, 6*10**12],
+    target = Sun
+
+    ax.set(xlim=[-6*10**11, 6*10**11], ylim=[-6*10**11, 6*10**11],
            xlabel='x axis', ylabel='y axis')
     # ax.set_xscale('log')
     # ax.set_yscale('log')
     scale = 1.1
     zoom_factory_return = zoom_factory(ax, base_scale=scale)
+    pan_factory_return = pan_factory(ax)
 
     ani = animation.FuncAnimation(fig=fig, frames=10, func=update, interval=30)
     plt.show()
