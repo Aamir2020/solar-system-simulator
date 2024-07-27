@@ -43,17 +43,23 @@ def pan_factory(ax):
         list_of_bodies = [Sun, Mercury, Venus, Earth,
                           Mars, Jupiter, Saturn, Uranus, Neptune]
         global target
+        target_changed = False
         for object in list_of_bodies:
             if abs(position[0]-object.coordinate[0]) < 0.1 * 10**11 and abs(position[0]-object.coordinate[0]) < 0.1 * 10**11:
                 target = object
-        cur_xlim = ax.get_xlim()
-        cur_ylim = ax.get_ylim()
-        cur_xrange = (cur_xlim[1] - cur_xlim[0])*.5
-        cur_yrange = (cur_ylim[1] - cur_ylim[0])*.5
-        ax.set_xlim([target.coordinate[0] - cur_xrange,
-                     target.coordinate[0] + cur_xrange])
-        ax.set_ylim([target.coordinate[1] - cur_yrange,
-                    target.coordinate[1] + cur_yrange])
+                target_changed = True
+
+        if target_changed is False:
+            target = None
+        else:
+            cur_xlim = ax.get_xlim()
+            cur_ylim = ax.get_ylim()
+            cur_xrange = (cur_xlim[1] - cur_xlim[0])*.5
+            cur_yrange = (cur_ylim[1] - cur_ylim[0])*.5
+            ax.set_xlim([target.coordinate[0] - cur_xrange,
+                        target.coordinate[0] + cur_xrange])
+            ax.set_ylim([target.coordinate[1] - cur_yrange,
+                        target.coordinate[1] + cur_yrange])
     fig = ax.get_figure()
     fig.canvas.mpl_connect('button_press_event', onPress)
     return onPress
@@ -118,14 +124,15 @@ def update(frame):
     neptune_text.set_position(
         (list_of_final_coordinates[8][0] + text_offset, list_of_final_coordinates[8][1] + text_offset))
 
-    cur_xlim = ax.get_xlim()
-    cur_ylim = ax.get_ylim()
-    cur_xrange = (cur_xlim[1] - cur_xlim[0])*.5
-    cur_yrange = (cur_ylim[1] - cur_ylim[0])*.5
-    ax.set_xlim([target.coordinate[0] - cur_xrange,
-                 target.coordinate[0] + cur_xrange])
-    ax.set_ylim([target.coordinate[1] - cur_yrange,
-                 target.coordinate[1] + cur_yrange])
+    if target is not None:
+        cur_xlim = ax.get_xlim()
+        cur_ylim = ax.get_ylim()
+        cur_xrange = (cur_xlim[1] - cur_xlim[0])*.5
+        cur_yrange = (cur_ylim[1] - cur_ylim[0])*.5
+        ax.set_xlim([target.coordinate[0] - cur_xrange,
+                    target.coordinate[0] + cur_xrange])
+        ax.set_ylim([target.coordinate[1] - cur_yrange,
+                    target.coordinate[1] + cur_yrange])
 
     return scat_sun, scat_mercury, scat_venus, scat_earth, scat_mars, scat_jupiter, scat_saturn, scat_uranus, scat_neptune, \
         mercury_trace, venus_trace, earth_trace, mars_trace, jupiter_trace, saturn_trace, uranus_trace, neptune_trace, \
@@ -230,7 +237,7 @@ if __name__ == '__main__':
     uranus_positions = deque([Uranus.coordinate], maxlen=max_positions)
     neptune_positions = deque([Neptune.coordinate], maxlen=max_positions)
 
-    target = Sun
+    target = None
 
     ax.set(xlim=[-6*10**11, 6*10**11], ylim=[-6*10**11, 6*10**11],
            xlabel='x axis', ylabel='y axis')
