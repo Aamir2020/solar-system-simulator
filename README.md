@@ -31,10 +31,9 @@ python3 main.py
 - Neptune
 
 ## TODO
-- ~~Add zooming functionality for the 2D map~~
-- ~~Add the ability to follow planets~~
-- ~~Fix the planet scaling issue when zooming~~
-- Fix text and planet scaling issue
+- Fix planet scaling
+- Make text of unselected planet disappear when zooming out (reduce text crowding)
+- Fix text appearing outside plot borders
 - Make the background black and add background stars
   
 <p align="center">
