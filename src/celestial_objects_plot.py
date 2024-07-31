@@ -48,3 +48,28 @@ class celestial_objects_plot:
 
     def get_celestial_object_text(self):
         return self.celestial_object_text
+
+    def check_text_overlap(self, other_text):
+        # TODO: Add dynamic text sizing here
+        # Seems like text size is set in pixels, The text is drawn starting from the bottom left.
+        # Find the figure's pixel to axis ratio.
+        # approximate the pixel size for the default and use the above ratio to find the axis length
+        # Use the axis lenght to draw an aproximate box around the text.
+        # Iterate through each text to find outif there is an overlap
+        # Rules: If either text1 or text2 are the target and they overlap
+        #           make the target text visible and the other invisible
+        #        If neither text1 or text2 are the target and they overlap name
+        #           make both texts invisible
+        #        If text1 and text2 don't overlap, make both visible
+        width = self.ax.get_window_extent().width
+        height = self.ax.get_window_extent().height
+
+        current_xlim = self.ax.get_xlim()
+        current_ylim = self.ax.get_ylim()
+
+        width_ratio = current_xlim/width
+        height_ratio = current_ylim/height
+
+        default_text_size_In_Inches = 0.13
+        width_of_box = default_text_size_In_Inches*width_ratio
+        height_of_box = default_text_size_In_Inches*height_ratio
