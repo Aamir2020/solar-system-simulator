@@ -7,6 +7,16 @@ class celestial_objects_plot:
 
     max_positions = 50
     text_offset = 10**10
+    target = None
+    count = 1
+
+    @classmethod
+    def set_target_body_to_center(cls, celestial_object):
+        cls.target = celestial_object
+
+    @classmethod
+    def get_target_body(cls):
+        return cls.target
 
     def __init__(self, name, ax):
         self.name = name
@@ -34,8 +44,18 @@ class celestial_objects_plot:
                                              [coordinate[1] for coordinate in self.celestial_object_positions])
 
     def update_text_position(self, final_coordinate):
+        if self.count > 0:
+            self.recalculate_bounding_box()
+            self.count -= 1
         self.celestial_object_text.set_position(
             (final_coordinate[0], final_coordinate[1] + self.text_offset))
+        self.bbox_template.update_position(
+            final_coordinate[0], final_coordinate[1] + self.text_offset)
+
+    def recalculate_bounding_box(self):
+        bbox = self.get_text_bbox()
+        self.bbox_template = bounding_box_template(
+            bbox.x0, bbox.x1, bbox.width, bbox.height)
 
     def get_celestial_object(self):
         return self.celestial_object
@@ -48,3 +68,40 @@ class celestial_objects_plot:
 
     def get_celestial_object_text(self):
         return self.celestial_object_text
+
+    def get_text_bbox(self):
+        renderer = self.ax.figure.canvas.get_renderer()
+        bboxbase = self.celestial_object_text.get_window_extent(
+            renderer=renderer)
+        return bboxbase.transformed(self.ax.transData.inverted())
+
+    def is_text_overlapping(self, other_celestial_plot):
+        this_bbox = self.bbox_template
+        other_bbox = other_celestial_plot.get_bbox_template()
+
+        # Check if the bounding boxes overlap
+        overlap = not (this_bbox.x0 > other_bbox.x1 or
+                       this_bbox.x1 < other_bbox.x0 or
+                       this_bbox.y0 > other_bbox.y1 or
+                       this_bbox.y1 < other_bbox.y0)
+
+        return overlap
+
+    def get_bbox_template(self):
+        return self.bbox_template
+
+
+class bounding_box_template:
+    def __init__(self, x, y, width, height):
+        self.x0 = x
+        self.x1 = x + width
+        self.y0 = y
+        self.y1 = y + height
+        self.width = width
+        self.height = height
+
+    def update_position(self, x, y):
+        self.x0 = x
+        self.x1 = x + self.width
+        self.y0 = y
+        self.y1 = y + self.height

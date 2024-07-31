@@ -21,6 +21,7 @@ python3 main.py
 ```
 
 ## The following celestial objects will be displayed
+- Sun
 - Mercury
 - Venus
 - Earth
@@ -32,7 +33,6 @@ python3 main.py
 
 ## TODO
 - Fix planet scaling
-- Make text of unselected planet disappear when zooming out (reduce text crowding)
 - Fix text appearing outside plot borders
 - Make the background black and add background stars
   
