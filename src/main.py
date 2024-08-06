@@ -53,7 +53,7 @@ def pan_factory(ax):
             cur_ylim = ax.get_ylim()
             cur_xrange = (cur_xlim[1] - cur_xlim[0])*.5
             cur_yrange = (cur_ylim[1] - cur_ylim[0])*.5
-            target = celestial_objects_plot.get_target_body_to_center()
+            target = celestial_objects_plot.get_target_body()
             ax.set_xlim([target.coordinate[0] - cur_xrange,
                         target.coordinate[0] + cur_xrange])
             ax.set_ylim([target.coordinate[1] - cur_yrange,
@@ -68,6 +68,7 @@ def update(frame):
     list_of_plot_elements_to_return = []
     list_of_final_coordinates = orbit.move_celestial_objects(
         [celestial_object_plot.get_celestial_object() for celestial_object_plot in list_of_celestial_object_plots])
+    target = celestial_objects_plot.get_target_body()
 
     for index in range(len(list_of_final_coordinates)):
         list_of_celestial_object_plots[index].set_plot_offsets(
@@ -77,6 +78,21 @@ def update(frame):
         list_of_celestial_object_plots[index].set_trace_data()
         list_of_celestial_object_plots[index].update_text_position(
             list_of_final_coordinates[index])
+
+    for body_one_plot in list_of_celestial_object_plots:
+        for body_two_plot in list_of_celestial_object_plots:
+            if body_one_plot == body_two_plot:
+                continue
+            if body_one_plot.is_text_overlapping(body_two_plot) is True:
+                if target != body_one_plot.get_celestial_object():
+                    body_one_plot.get_celestial_object_text().set(visible=False)
+                    break
+                else:
+                    body_one_plot.get_celestial_object_text().set(visible=True)
+            else:
+                body_one_plot.get_celestial_object_text().set(visible=True)
+
+    for index in range(len(list_of_final_coordinates)):
         list_of_plot_elements_to_return.append(
             list_of_celestial_object_plots[index].get_celestial_object_scatter_plot())
         list_of_plot_elements_to_return.append(
@@ -84,13 +100,6 @@ def update(frame):
         list_of_plot_elements_to_return.append(
             list_of_celestial_object_plots[index].get_celestial_object_text())
 
-    for body_one in list_of_celestial_object_plots:
-        for body_two in list_of_celestial_object_plots:
-            if body_one == body_two:
-                continue
-            body_one.check_text_overlap(body_two)
-
-    target = celestial_objects_plot.get_target_body_to_center()
     if target is not None:
         cur_xlim = ax.get_xlim()
         cur_ylim = ax.get_ylim()

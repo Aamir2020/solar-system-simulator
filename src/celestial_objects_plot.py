@@ -14,7 +14,7 @@ class celestial_objects_plot:
         cls.target = celestial_object
 
     @classmethod
-    def get_target_body_to_center(cls):
+    def get_target_body(cls):
         return cls.target
 
     def __init__(self, name, ax):
@@ -58,7 +58,7 @@ class celestial_objects_plot:
     def get_celestial_object_text(self):
         return self.celestial_object_text
 
-    def check_text_overlap(self, other_celestial_plot):
+    def is_text_overlapping(self, other_celestial_plot):
         other_text = other_celestial_plot.get_celestial_object_text()
 
         width_of_window_in_inches = self.ax.get_window_extent().width
@@ -82,19 +82,7 @@ class celestial_objects_plot:
         this_text_x_position, this_text_y_position = self.celestial_object_text.get_position()
         that_text_x_position, that_text_y_position = other_text.get_position()
 
-        if self.target == self.celestial_object or self.target == other_celestial_plot.get_celestial_object():
-            if (this_text_x_position + width_of_text_box < that_text_x_position) or (this_text_y_position + height_of_text_box < that_text_y_position):
-                if self.target != self.celestial_object:
-                    self.celestial_object_text.set(visible=False)
-                else:
-                    other_text.set(visible=False)
-            else:
-                self.celestial_object_text.set(visible=True)
-                other_text.set(visible=True)
+        if (this_text_x_position + width_of_text_box > that_text_x_position) and (this_text_y_position + height_of_text_box > that_text_y_position):
+            return True
         else:
-            if (this_text_x_position + width_of_text_box < that_text_x_position) or (this_text_y_position + height_of_text_box < that_text_y_position):
-                self.celestial_object_text.set(visible=False)
-                other_text.set(visible=False)
-            else:
-                self.celestial_object_text.set(visible=True)
-                other_text.set(visible=True)
+            return False
