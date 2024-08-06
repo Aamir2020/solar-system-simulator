@@ -7,6 +7,15 @@ class celestial_objects_plot:
 
     max_positions = 50
     text_offset = 10**10
+    target = None
+
+    @classmethod
+    def set_target_body_to_center(cls, celestial_object):
+        cls.target = celestial_object
+
+    @classmethod
+    def get_target_body_to_center(cls):
+        return cls.target
 
     def __init__(self, name, ax):
         self.name = name
@@ -49,27 +58,43 @@ class celestial_objects_plot:
     def get_celestial_object_text(self):
         return self.celestial_object_text
 
-    def check_text_overlap(self, other_text):
-        # TODO: Add dynamic text sizing here
-        # Seems like text size is set in pixels, The text is drawn starting from the bottom left.
-        # Find the figure's pixel to axis ratio.
-        # approximate the pixel size for the default and use the above ratio to find the axis length
-        # Use the axis lenght to draw an aproximate box around the text.
-        # Iterate through each text to find outif there is an overlap
-        # Rules: If either text1 or text2 are the target and they overlap
-        #           make the target text visible and the other invisible
-        #        If neither text1 or text2 are the target and they overlap name
-        #           make both texts invisible
-        #        If text1 and text2 don't overlap, make both visible
-        width = self.ax.get_window_extent().width
-        height = self.ax.get_window_extent().height
+    def check_text_overlap(self, other_celestial_plot):
+        other_text = other_celestial_plot.get_celestial_object_text()
+
+        width_of_window_in_inches = self.ax.get_window_extent().width
+        height_of_window_in_inches = self.ax.get_window_extent().height
 
         current_xlim = self.ax.get_xlim()
         current_ylim = self.ax.get_ylim()
 
-        width_ratio = current_xlim/width
-        height_ratio = current_ylim/height
+        xrange_in_meter = current_xlim[1] - current_xlim[0]
+        yrange_in_meter = current_ylim[1] - current_ylim[0]
 
-        default_text_size_In_Inches = 0.13
-        width_of_box = default_text_size_In_Inches*width_ratio
-        height_of_box = default_text_size_In_Inches*height_ratio
+        width_ratio = xrange_in_meter/width_of_window_in_inches
+        height_ratio = yrange_in_meter/height_of_window_in_inches
+
+        width_of_text_box_in_inches = self.celestial_object_text.get_window_extent().width
+        height_of_text_box_in_inches = self.celestial_object_text.get_window_extent().height
+
+        width_of_text_box = width_of_text_box_in_inches*width_ratio
+        height_of_text_box = height_of_text_box_in_inches*height_ratio
+
+        this_text_x_position, this_text_y_position = self.celestial_object_text.get_position()
+        that_text_x_position, that_text_y_position = other_text.get_position()
+
+        if self.target == self.celestial_object or self.target == other_celestial_plot.get_celestial_object():
+            if (this_text_x_position + width_of_text_box < that_text_x_position) or (this_text_y_position + height_of_text_box < that_text_y_position):
+                if self.target != self.celestial_object:
+                    self.celestial_object_text.set(visible=False)
+                else:
+                    other_text.set(visible=False)
+            else:
+                self.celestial_object_text.set(visible=True)
+                other_text.set(visible=True)
+        else:
+            if (this_text_x_position + width_of_text_box < that_text_x_position) or (this_text_y_position + height_of_text_box < that_text_y_position):
+                self.celestial_object_text.set(visible=False)
+                other_text.set(visible=False)
+            else:
+                self.celestial_object_text.set(visible=True)
+                other_text.set(visible=True)

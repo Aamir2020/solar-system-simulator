@@ -40,20 +40,20 @@ def pan_factory(ax):
         position = np.array([xdata, ydata], dtype=np.float64)
         list_of_bodies = [
             celestial_object_plot.get_celestial_object() for celestial_object_plot in list_of_celestial_object_plots]
-        global target
         target_changed = False
         for object in list_of_bodies:
             if abs(position[0]-object.coordinate[0]) < 0.1 * 10**11 and abs(position[0]-object.coordinate[0]) < 0.1 * 10**11:
-                target = object
+                celestial_objects_plot.set_target_body_to_center(object)
                 target_changed = True
 
         if target_changed is False:
-            target = None
+            celestial_objects_plot.set_target_body_to_center(None)
         else:
             cur_xlim = ax.get_xlim()
             cur_ylim = ax.get_ylim()
             cur_xrange = (cur_xlim[1] - cur_xlim[0])*.5
             cur_yrange = (cur_ylim[1] - cur_ylim[0])*.5
+            target = celestial_objects_plot.get_target_body_to_center()
             ax.set_xlim([target.coordinate[0] - cur_xrange,
                         target.coordinate[0] + cur_xrange])
             ax.set_ylim([target.coordinate[1] - cur_yrange,
@@ -84,6 +84,13 @@ def update(frame):
         list_of_plot_elements_to_return.append(
             list_of_celestial_object_plots[index].get_celestial_object_text())
 
+    for body_one in list_of_celestial_object_plots:
+        for body_two in list_of_celestial_object_plots:
+            if body_one == body_two:
+                continue
+            body_one.check_text_overlap(body_two)
+
+    target = celestial_objects_plot.get_target_body_to_center()
     if target is not None:
         cur_xlim = ax.get_xlim()
         cur_ylim = ax.get_ylim()
@@ -108,8 +115,6 @@ if __name__ == '__main__':
 
     for item in list_of_celestial_object_names:
         list_of_celestial_object_plots.append(celestial_objects_plot(item, ax))
-
-    target = None
 
     ax.set(xlim=[-6*10**11, 6*10**11], ylim=[-6*10**11, 6*10**11],
            xlabel='x axis', ylabel='y axis')
