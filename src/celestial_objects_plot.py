@@ -1,5 +1,6 @@
 from ephemeris_request_handler import ephemeris_request_handler_impl
 from celestial_object import celestial_object
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from collections import deque
 
 
@@ -58,31 +59,20 @@ class celestial_objects_plot:
     def get_celestial_object_text(self):
         return self.celestial_object_text
 
+    def get_text_bbox(self):
+        renderer = self.ax.figure.canvas.get_renderer()
+        bboxbase = self.celestial_object_text.get_window_extent(
+            renderer=renderer)
+        return bboxbase.transformed(self.ax.transData.inverted())
+
     def is_text_overlapping(self, other_celestial_plot):
-        other_text = other_celestial_plot.get_celestial_object_text()
+        this_bbox = self.get_text_bbox()
+        other_bbox = other_celestial_plot.get_text_bbox()
 
-        width_of_window_in_inches = self.ax.get_window_extent().width
-        height_of_window_in_inches = self.ax.get_window_extent().height
+        # Check if the bounding boxes overlap
+        overlap = not (this_bbox.x0 > other_bbox.x1 + 10**3 or
+                       this_bbox.x1 + 10**3 < other_bbox.x0 or
+                       this_bbox.y0 > other_bbox.y1 + 10**3 or
+                       this_bbox.y1 + 10**3 < other_bbox.y0)
 
-        current_xlim = self.ax.get_xlim()
-        current_ylim = self.ax.get_ylim()
-
-        xrange_in_meter = current_xlim[1] - current_xlim[0]
-        yrange_in_meter = current_ylim[1] - current_ylim[0]
-
-        width_ratio = xrange_in_meter/width_of_window_in_inches
-        height_ratio = yrange_in_meter/height_of_window_in_inches
-
-        width_of_text_box_in_inches = self.celestial_object_text.get_window_extent().width
-        height_of_text_box_in_inches = self.celestial_object_text.get_window_extent().height
-
-        width_of_text_box = width_of_text_box_in_inches*width_ratio
-        height_of_text_box = height_of_text_box_in_inches*height_ratio
-
-        this_text_x_position, this_text_y_position = self.celestial_object_text.get_position()
-        that_text_x_position, that_text_y_position = other_text.get_position()
-
-        if (this_text_x_position + width_of_text_box > that_text_x_position) and (this_text_y_position + height_of_text_box > that_text_y_position):
-            return True
-        else:
-            return False
+        return overlap
