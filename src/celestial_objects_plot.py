@@ -2,6 +2,7 @@ from ephemeris_request_handler import ephemeris_request_handler_impl
 from celestial_object import celestial_object
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from collections import deque
+from matplotlib.patches import Rectangle
 
 
 class celestial_objects_plot:
@@ -9,6 +10,7 @@ class celestial_objects_plot:
     max_positions = 50
     text_offset = 10**10
     target = None
+    text_rect = None
 
     @classmethod
     def set_target_body_to_center(cls, celestial_object):
@@ -32,6 +34,7 @@ class celestial_objects_plot:
         self.celestial_object_trace, = ax.plot([], [], 'k-', lw=1)
         self.celestial_object_positions = deque(
             [self.celestial_object.coordinate], maxlen=self.max_positions)
+        self.update_text_boundary()
 
     def set_plot_offsets(self, final_coordinate):
         self.celestial_object_scatter_plot.set_offsets(final_coordinate)
@@ -70,9 +73,17 @@ class celestial_objects_plot:
         other_bbox = other_celestial_plot.get_text_bbox()
 
         # Check if the bounding boxes overlap
-        overlap = not (this_bbox.x0 > other_bbox.x1 + 10**3 or
-                       this_bbox.x1 + 10**3 < other_bbox.x0 or
-                       this_bbox.y0 > other_bbox.y1 + 10**3 or
-                       this_bbox.y1 + 10**3 < other_bbox.y0)
+        overlap = not (this_bbox.x0 > other_bbox.x1 or
+                       this_bbox.x1 < other_bbox.x0 or
+                       this_bbox.y0 > other_bbox.y1 or
+                       this_bbox.y1 < other_bbox.y0)
 
         return overlap
+
+    def update_text_boundary(self):
+        if self.text_rect:
+            self.text_rect.remove()  # Remove previous rectangle
+        bbox = self.get_text_bbox()
+        self.text_rect = Rectangle((bbox.x0, bbox.y0), bbox.width, bbox.height,
+                                   linewidth=1, edgecolor='r', facecolor='none')
+        self.ax.add_patch(self.text_rect)

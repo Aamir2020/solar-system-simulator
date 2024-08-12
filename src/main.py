@@ -42,7 +42,7 @@ def pan_factory(ax):
             celestial_object_plot.get_celestial_object() for celestial_object_plot in list_of_celestial_object_plots]
         target_changed = False
         for object in list_of_bodies:
-            if abs(position[0]-object.coordinate[0]) < 0.1 * 10**11 and abs(position[0]-object.coordinate[0]) < 0.1 * 10**11:
+            if abs(position[0]-object.coordinate[0]) < 0.1 * 10**10 and abs(position[0]-object.coordinate[0]) < 0.1 * 10**10:
                 celestial_objects_plot.set_target_body_to_center(object)
                 target_changed = True
 
@@ -79,18 +79,40 @@ def update(frame):
         list_of_celestial_object_plots[index].update_text_position(
             list_of_final_coordinates[index])
 
+    # for body_one_plot in list_of_celestial_object_plots:
+    #     for body_two_plot in list_of_celestial_object_plots:
+    #         if body_one_plot == body_two_plot:
+    #             continue
+    #         if body_one_plot.is_text_overlapping(body_two_plot) is True:
+    #             if target != body_one_plot.get_celestial_object():
+    #                 body_one_plot.get_celestial_object_text().set(visible=False)
+    #                 break
+    #             else:
+    #                 body_one_plot.get_celestial_object_text().set(visible=True)
+    #         else:
+    #             body_one_plot.get_celestial_object_text().set(visible=True)
+
+    overlapping_celestial_object_plots = set()
     for body_one_plot in list_of_celestial_object_plots:
-        for body_two_plot in list_of_celestial_object_plots:
+        for body_two_plot in list_of_celestial_object_plots[list_of_celestial_object_plots.index(body_one_plot):]:
             if body_one_plot == body_two_plot:
                 continue
             if body_one_plot.is_text_overlapping(body_two_plot) is True:
-                if target != body_one_plot.get_celestial_object():
-                    body_one_plot.get_celestial_object_text().set(visible=False)
-                    break
-                else:
-                    body_one_plot.get_celestial_object_text().set(visible=True)
-            else:
-                body_one_plot.get_celestial_object_text().set(visible=True)
+                overlapping_celestial_object_plots.add(body_one_plot)
+                overlapping_celestial_object_plots.add(body_two_plot)
+                break
+
+    for body_plot in overlapping_celestial_object_plots:
+        if target == body_plot.get_celestial_object():
+            body_plot.get_celestial_object_text().set(visible=True)
+        else:
+            body_plot.get_celestial_object_text().set(visible=False)
+
+    non_overlapping_celestial_object_plots = [e for e in list_of_celestial_object_plots if (
+        e not in overlapping_celestial_object_plots)]
+
+    for body_plot in non_overlapping_celestial_object_plots:
+        body_plot.get_celestial_object_text().set(visible=True)
 
     for index in range(len(list_of_final_coordinates)):
         list_of_plot_elements_to_return.append(
@@ -99,6 +121,7 @@ def update(frame):
             list_of_celestial_object_plots[index].get_celestial_object_trace())
         list_of_plot_elements_to_return.append(
             list_of_celestial_object_plots[index].get_celestial_object_text())
+        list_of_celestial_object_plots[index].update_text_boundary()
 
     if target is not None:
         cur_xlim = ax.get_xlim()
@@ -123,7 +146,8 @@ if __name__ == '__main__':
     list_of_celestial_object_plots = []
 
     for item in list_of_celestial_object_names:
-        list_of_celestial_object_plots.append(celestial_objects_plot(item, ax))
+        celestial_objects_plot_item = celestial_objects_plot(item, ax)
+        list_of_celestial_object_plots.append(celestial_objects_plot_item)
 
     ax.set(xlim=[-6*10**11, 6*10**11], ylim=[-6*10**11, 6*10**11],
            xlabel='x axis', ylabel='y axis')
