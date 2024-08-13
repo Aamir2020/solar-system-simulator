@@ -26,6 +26,9 @@ def zoom_factory(ax, base_scale):
         ax.set_ylim([ydata - down_height,
                      ydata + up_height])
         ax.figure.canvas.draw_idle()
+
+        for celestial_objects_plot_item in list_of_celestial_object_plots:
+            celestial_objects_plot_item.recalculate_bounding_box()
     fig = ax.get_figure()
     fig.canvas.mpl_connect('scroll_event', zoom)
     return zoom

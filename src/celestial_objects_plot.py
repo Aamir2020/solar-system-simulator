@@ -3,6 +3,7 @@ from celestial_object import celestial_object
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from collections import deque
 from matplotlib.patches import Rectangle
+from matplotlib.textpath import TextPath
 
 
 class celestial_objects_plot:
@@ -48,14 +49,22 @@ class celestial_objects_plot:
 
     def update_text_position(self, final_coordinate):
         if self.count > 0:
-            bbox = self.get_text_bbox()
-            self.bbox_template = bounding_box_template(
-                bbox.x0, bbox.x1, bbox.width, bbox.height)
+            self.recalculate_bounding_box()
             self.count -= 1
         self.celestial_object_text.set_position(
             (final_coordinate[0], final_coordinate[1] + self.text_offset))
         self.bbox_template.update_position(
             final_coordinate[0], final_coordinate[1] + self.text_offset)
+
+    def recalculate_bounding_box(self):
+        text = self.celestial_object_text.get_text()
+        font_properties = self.celestial_object_text.get_font_properties()
+        x, y = self.celestial_object_text.get_position()
+        text_path = TextPath((x, y), text, prop=font_properties)
+        # bbox = self.get_text_bbox()
+        bbox = text_path.get_extents().transformed(self.ax.transData.inverted())
+        self.bbox_template = bounding_box_template(
+            bbox.x0, bbox.x1, bbox.width, bbox.height)
 
     def get_celestial_object(self):
         return self.celestial_object
