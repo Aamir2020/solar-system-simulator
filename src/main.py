@@ -25,7 +25,16 @@ def zoom_factory(ax, base_scale):
                      xdata + right_width])
         ax.set_ylim([ydata - down_height,
                      ydata + up_height])
-        ax.figure.canvas.draw_idle()
+        store_visibility = []
+        for celestial_objects_plot_item in list_of_celestial_object_plots:
+            store_visibility.append(
+                celestial_objects_plot_item.get_celestial_object_text().get_visible())
+            celestial_objects_plot_item.get_celestial_object_text().set(visible=True)
+        for index in range(len(list_of_celestial_object_plots)):
+            list_of_celestial_object_plots[index].recalculate_bounding_box()
+            list_of_celestial_object_plots[index].get_celestial_object_text().set(
+                visible=store_visibility[index])
+
     fig = ax.get_figure()
     fig.canvas.mpl_connect('scroll_event', zoom)
     return zoom
@@ -78,19 +87,7 @@ def update(frame):
         list_of_celestial_object_plots[index].set_trace_data()
         list_of_celestial_object_plots[index].update_text_position(
             list_of_final_coordinates[index])
-
-    # for body_one_plot in list_of_celestial_object_plots:
-    #     for body_two_plot in list_of_celestial_object_plots:
-    #         if body_one_plot == body_two_plot:
-    #             continue
-    #         if body_one_plot.is_text_overlapping(body_two_plot) is True:
-    #             if target != body_one_plot.get_celestial_object():
-    #                 body_one_plot.get_celestial_object_text().set(visible=False)
-    #                 break
-    #             else:
-    #                 body_one_plot.get_celestial_object_text().set(visible=True)
-    #         else:
-    #             body_one_plot.get_celestial_object_text().set(visible=True)
+        list_of_celestial_object_plots[index].update_text_boundary()
 
     overlapping_celestial_object_plots = set()
     for body_one_plot in list_of_celestial_object_plots:
@@ -121,7 +118,6 @@ def update(frame):
             list_of_celestial_object_plots[index].get_celestial_object_trace())
         list_of_plot_elements_to_return.append(
             list_of_celestial_object_plots[index].get_celestial_object_text())
-        list_of_celestial_object_plots[index].update_text_boundary()
 
     if target is not None:
         cur_xlim = ax.get_xlim()

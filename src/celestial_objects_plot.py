@@ -48,14 +48,17 @@ class celestial_objects_plot:
 
     def update_text_position(self, final_coordinate):
         if self.count > 0:
-            bbox = self.get_text_bbox()
-            self.bbox_template = bounding_box_template(
-                bbox.x0, bbox.x1, bbox.width, bbox.height)
+            self.recalculate_bounding_box()
             self.count -= 1
         self.celestial_object_text.set_position(
             (final_coordinate[0], final_coordinate[1] + self.text_offset))
         self.bbox_template.update_position(
             final_coordinate[0], final_coordinate[1] + self.text_offset)
+
+    def recalculate_bounding_box(self):
+        bbox = self.get_text_bbox()
+        self.bbox_template = bounding_box_template(
+            bbox.x0, bbox.x1, bbox.width, bbox.height)
 
     def get_celestial_object(self):
         return self.celestial_object
