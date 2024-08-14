@@ -21,19 +21,14 @@ def zoom_factory(ax, base_scale):
         down_height = (ydata - current_ylim[0])*scale_factor
         right_width = (current_xlim[1] - xdata)*scale_factor
         left_width = (xdata - current_xlim[0])*scale_factor
+        x_range = (current_xlim[1]-current_xlim[0])*scale_factor
         ax.set_xlim([xdata - left_width,
                      xdata + right_width])
         ax.set_ylim([ydata - down_height,
                      ydata + up_height])
-        store_visibility = []
-        for celestial_objects_plot_item in list_of_celestial_object_plots:
-            store_visibility.append(
-                celestial_objects_plot_item.get_celestial_object_text().get_visible())
-            celestial_objects_plot_item.get_celestial_object_text().set(visible=True)
-        for index in range(len(list_of_celestial_object_plots)):
-            list_of_celestial_object_plots[index].recalculate_bounding_box()
-            list_of_celestial_object_plots[index].get_celestial_object_text().set(
-                visible=store_visibility[index])
+
+        recreate_bbox_after_zoom()
+        adjust_size_of_planets(x_range, base_scale)
 
     fig = ax.get_figure()
     fig.canvas.mpl_connect('scroll_event', zoom)
@@ -86,7 +81,7 @@ def update(frame):
         list_of_celestial_object_plots[index].update_text_position(
             list_of_final_coordinates[index])
 
-    text_overlap(target)
+    handle_text_overlap(target)
 
     for index in range(len(list_of_final_coordinates)):
         list_of_plot_elements_to_return.append(
@@ -109,7 +104,19 @@ def update(frame):
     return list_of_plot_elements_to_return
 
 
-def text_overlap(target):
+def recreate_bbox_after_zoom():
+    store_visibility = []
+    for celestial_objects_plot_item in list_of_celestial_object_plots:
+        store_visibility.append(
+            celestial_objects_plot_item.get_celestial_object_text().get_visible())
+        celestial_objects_plot_item.get_celestial_object_text().set(visible=True)
+    for index in range(len(list_of_celestial_object_plots)):
+        list_of_celestial_object_plots[index].recalculate_bounding_box()
+        list_of_celestial_object_plots[index].get_celestial_object_text().set(
+            visible=store_visibility[index])
+
+
+def handle_text_overlap(target):
     overlapping_celestial_object_plots = set()
     for body_one_plot in list_of_celestial_object_plots:
         for body_two_plot in list_of_celestial_object_plots[list_of_celestial_object_plots.index(body_one_plot):]:
@@ -131,6 +138,25 @@ def text_overlap(target):
 
     for body_plot in non_overlapping_celestial_object_plots:
         body_plot.get_celestial_object_text().set(visible=True)
+
+
+def adjust_size_of_planets(x_range, base_scale):
+    # Y = M*log(X)/log(base_scale) + C
+    max = 10000
+    min = 5
+    slope = -206.8599441
+    min_x_range = 6*10**8
+    max_x_range = 6*10**10
+    intercept = 53858.81088
+    for celestial_objects_plot_item in list_of_celestial_object_plots:
+        if x_range < min_x_range:
+            new_area = np.array([max], dtype=np.float64)
+        elif min_x_range <= x_range <= max_x_range:
+            new_area = slope*np.log(x_range)/np.log(base_scale) + intercept
+            new_area = np.array([new_area], dtype=np.float64)
+        elif x_range > max_x_range:
+            new_area = np.array([min], dtype=np.float64)
+        celestial_objects_plot_item.get_celestial_object_scatter_plot().set_sizes(new_area)
 
 
 if __name__ == '__main__':
