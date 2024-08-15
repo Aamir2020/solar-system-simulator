@@ -28,7 +28,7 @@ class celestial_objects_plot:
         self.celestial_object_scatter_plot = ax.scatter(
             self.celestial_object.coordinate[0], self.celestial_object.coordinate[1], c="b", s=5, marker='o')
         self.celestial_object_text = ax.text(
-            self.celestial_object.coordinate[0], self.celestial_object.coordinate[1] + self.text_offset, name)
+            self.celestial_object.coordinate[0], self.celestial_object.coordinate[1] + self.text_offset, name, clip_on=True)
         self.celestial_object_trace, = ax.plot([], [], 'k-', lw=1)
         self.celestial_object_positions = deque(
             [self.celestial_object.coordinate], maxlen=self.max_positions)

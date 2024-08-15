@@ -32,8 +32,6 @@ python3 main.py
 - Neptune
 
 ## TODO
-- Fix planet scaling
-- Fix text appearing outside plot borders
 - Make the background black and add background stars
   
 <p align="center">
