@@ -17,16 +17,9 @@ def zoom_factory(ax, base_scale):
             scale_factor = base_scale
         else:
             scale_factor = 1
-        up_height = (current_ylim[1] - ydata)*scale_factor
-        down_height = (ydata - current_ylim[0])*scale_factor
-        right_width = (current_xlim[1] - xdata)*scale_factor
-        left_width = (xdata - current_xlim[0])*scale_factor
-        x_range = (current_xlim[1]-current_xlim[0])*scale_factor
-        ax.set_xlim([xdata - left_width,
-                     xdata + right_width])
-        ax.set_ylim([ydata - down_height,
-                     ydata + up_height])
 
+        x_range = update_plot_axes(
+            current_xlim, current_ylim, xdata, ydata, scale_factor)
         recreate_bbox_after_zoom()
         adjust_size_of_planets(x_range, base_scale)
 
@@ -102,6 +95,20 @@ def update(frame):
                     target.coordinate[1] + cur_yrange])
 
     return list_of_plot_elements_to_return
+
+
+def update_plot_axes(current_xlim, current_ylim, xdata, ydata, scale_factor):
+    up_height = (current_ylim[1] - ydata)*scale_factor
+    down_height = (ydata - current_ylim[0])*scale_factor
+    right_width = (current_xlim[1] - xdata)*scale_factor
+    left_width = (xdata - current_xlim[0])*scale_factor
+    x_range = (current_xlim[1]-current_xlim[0])*scale_factor
+    ax.set_xlim([xdata - left_width,
+                 xdata + right_width])
+    ax.set_ylim([ydata - down_height,
+                 ydata + up_height])
+
+    return x_range
 
 
 def recreate_bbox_after_zoom():
