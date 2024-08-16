@@ -1,11 +1,12 @@
 from ephemeris_request_handler import ephemeris_request_handler_impl
+from matplotlib.collections import LineCollection
 from celestial_object import celestial_object
 from collections import deque
+import numpy as np
 
 
 class celestial_objects_plot:
 
-    max_positions = 50
     text_offset = 10**10
     target = None
     count = 1
@@ -25,11 +26,23 @@ class celestial_objects_plot:
             name)
         self.celestial_object = celestial_object(
             name, coordinate, velocity, mass)
+
         self.celestial_object_scatter_plot = ax.scatter(
             self.celestial_object.coordinate[0], self.celestial_object.coordinate[1], c="b", s=5, marker='o')
         self.celestial_object_text = ax.text(
             self.celestial_object.coordinate[0], self.celestial_object.coordinate[1] + self.text_offset, name, clip_on=True)
-        self.celestial_object_trace, = ax.plot([], [], 'k-', lw=1)
+
+        np_coordinate = np.array(coordinate, dtype=np.float64)
+        distance = np.sqrt(np_coordinate.dot(np_coordinate))
+        self.max_positions = int(distance/(2*10**9))
+        if self.max_positions != 0:
+            self.line_width = np.linspace(1, 2.23, self.max_positions-1)
+        else:
+            self.line_width = (0,)
+        self.segments = []
+        self.line_collection = LineCollection(
+            self.segments, linewidths=self.line_width, color='blue')
+        self.ax.add_collection(self.line_collection)
         self.celestial_object_positions = deque(
             [self.celestial_object.coordinate], maxlen=self.max_positions)
 
@@ -40,8 +53,9 @@ class celestial_objects_plot:
         self.celestial_object_positions.append(final_coordinate)
 
     def set_trace_data(self):
-        self.celestial_object_trace.set_data([coordinate[0] for coordinate in self.celestial_object_positions],
-                                             [coordinate[1] for coordinate in self.celestial_object_positions])
+        points = np.array(self.celestial_object_positions).reshape(-1, 1, 2)
+        self.segments = np.concatenate([points[:-1], points[1:]], axis=1)
+        self.line_collection.set_segments(self.segments)
 
     def update_text_position(self, final_coordinate):
         if self.count > 0:
@@ -62,9 +76,6 @@ class celestial_objects_plot:
 
     def get_celestial_object_scatter_plot(self):
         return self.celestial_object_scatter_plot
-
-    def get_celestial_object_trace(self):
-        return self.celestial_object_trace
 
     def get_celestial_object_text(self):
         return self.celestial_object_text

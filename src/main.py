@@ -80,8 +80,6 @@ def update(frame):
         list_of_plot_elements_to_return.append(
             list_of_celestial_object_plots[index].get_celestial_object_scatter_plot())
         list_of_plot_elements_to_return.append(
-            list_of_celestial_object_plots[index].get_celestial_object_trace())
-        list_of_plot_elements_to_return.append(
             list_of_celestial_object_plots[index].get_celestial_object_text())
 
     if target is not None:
