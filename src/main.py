@@ -1,14 +1,16 @@
 from celestial_objects_plot import celestial_objects_plot
 from matplotlib.backend_bases import MouseEvent
+from matplotlib.image import AxesImage
 from matplotlib.axes import Axes
 from orbit_builder import orbit
+from itertools import chain
 
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
 import numpy as np
 
 
-def zoom_factory(ax: Axes, base_scale: float):
+def zoom_factory(ax: Axes, image_object: AxesImage, base_scale: float):
     def zoom(event: MouseEvent):
         current_xlim = ax.get_xlim()
         current_ylim = ax.get_ylim()
@@ -22,7 +24,7 @@ def zoom_factory(ax: Axes, base_scale: float):
             scale_factor = 1
 
         x_range = update_plot_axes(
-            current_xlim, current_ylim, xdata, ydata, scale_factor)
+            current_xlim, current_ylim, xdata, ydata, scale_factor, image_object)
         recreate_bbox_after_zoom()
         adjust_size_of_planets(x_range, base_scale)
 
@@ -53,10 +55,7 @@ def pan_factory(ax: Axes):
             cur_xrange = (cur_xlim[1] - cur_xlim[0])*.5
             cur_yrange = (cur_ylim[1] - cur_ylim[0])*.5
             target = celestial_objects_plot.get_target_body()
-            ax.set_xlim([target.coordinate[0] - cur_xrange,
-                        target.coordinate[0] + cur_xrange])
-            ax.set_ylim([target.coordinate[1] - cur_yrange,
-                        target.coordinate[1] + cur_yrange])
+            resize_bachground_image(target, cur_xrange, cur_yrange)
     fig = ax.get_figure()
     fig.canvas.mpl_connect('button_press_event', onPress)
 
@@ -90,24 +89,36 @@ def update(frame):
         cur_ylim = ax.get_ylim()
         cur_xrange = (cur_xlim[1] - cur_xlim[0])*.5
         cur_yrange = (cur_ylim[1] - cur_ylim[0])*.5
-        ax.set_xlim([target.coordinate[0] - cur_xrange,
-                    target.coordinate[0] + cur_xrange])
-        ax.set_ylim([target.coordinate[1] - cur_yrange,
-                    target.coordinate[1] + cur_yrange])
+        resize_bachground_image(target, cur_xrange, cur_yrange)
 
     return list_of_plot_elements_to_return
 
 
-def update_plot_axes(current_xlim, current_ylim, xdata, ydata, scale_factor):
+def resize_bachground_image(target, cur_xrange, cur_yrange):
+    new_xlim = [target.coordinate[0] - cur_xrange,
+                target.coordinate[0] + cur_xrange]
+    new_ylim = [target.coordinate[1] - cur_yrange,
+                target.coordinate[1] + cur_yrange]
+    newlist = [new_xlim, new_ylim]
+    image_object.set_extent(
+        tuple(chain.from_iterable(newlist)))
+    ax.set_xlim(new_xlim)
+    ax.set_ylim(new_ylim)
+
+
+def update_plot_axes(current_xlim, current_ylim, xdata, ydata, scale_factor, image_object: AxesImage):
     up_height = (current_ylim[1] - ydata)*scale_factor
     down_height = (ydata - current_ylim[0])*scale_factor
     right_width = (current_xlim[1] - xdata)*scale_factor
     left_width = (xdata - current_xlim[0])*scale_factor
     x_range = (current_xlim[1]-current_xlim[0])*scale_factor
-    ax.set_xlim([xdata - left_width,
-                 xdata + right_width])
-    ax.set_ylim([ydata - down_height,
-                 ydata + up_height])
+    new_xlim = [xdata - left_width, xdata + right_width]
+    new_ylim = [ydata - down_height, ydata + up_height]
+    newlist = [new_xlim, new_ylim]
+    image_object.set_extent(
+        tuple(chain.from_iterable(newlist)))
+    ax.set_xlim(new_xlim)
+    ax.set_ylim(new_ylim)
 
     return x_range
 
@@ -168,8 +179,16 @@ def adjust_size_of_planets(x_range, base_scale):
 
 
 if __name__ == '__main__':
+    xmin = -6*10**11
+    xmax = 6*10**11
+    ymin = -6*10**11
+    ymax = 6*10**11
 
     fig, ax = plt.subplots()
+
+    img = plt.imread("src/background_image.png")
+    image_object = ax.imshow(img, zorder=0, extent=[xmin,
+                                                    xmax, ymin, ymax], aspect='auto')
 
     list_of_celestial_object_names = ["Sun", "Mercury", "Venus",
                                       "Earth", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune"]
@@ -180,11 +199,13 @@ if __name__ == '__main__':
         celestial_objects_plot_item = celestial_objects_plot(item, ax)
         list_of_celestial_object_plots.append(celestial_objects_plot_item)
 
-    ax.set(xlim=[-6*10**11, 6*10**11], ylim=[-6*10**11, 6*10**11],
-           xlabel='x axis', ylabel='y axis')
+    ax.set_aspect('auto')
+    ax.axis('off')
+    ax.set(xlim=[xmin, xmax], ylim=[ymin, ymax])
     scale = 1.1
-    zoom_factory(ax, base_scale=scale)
+    zoom_factory(ax, image_object, base_scale=scale)
     pan_factory(ax)
 
     ani = animation.FuncAnimation(fig=fig, frames=10, func=update, interval=30)
+    plt.tight_layout()
     plt.show()

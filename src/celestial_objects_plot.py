@@ -34,9 +34,9 @@ class celestial_objects_plot:
             name, coordinate, velocity, mass)
 
         self.celestial_object_scatter_plot = ax.scatter(
-            self.celestial_object.coordinate[0], self.celestial_object.coordinate[1], c="b", s=5, marker='o')
+            self.celestial_object.coordinate[0], self.celestial_object.coordinate[1], c="w", s=5, marker='o')
         self.celestial_object_text = ax.text(
-            self.celestial_object.coordinate[0], self.celestial_object.coordinate[1] + self.text_offset, name, clip_on=True)
+            self.celestial_object.coordinate[0], self.celestial_object.coordinate[1] + self.text_offset, name, c="w", clip_on=True)
 
         np_coordinate = np.array(coordinate, dtype=np.float64)
         distance = np.sqrt(np_coordinate.dot(np_coordinate))
@@ -47,7 +47,7 @@ class celestial_objects_plot:
             self.line_width = (0,)
         self.segments = []
         self.line_collection = LineCollection(
-            self.segments, linewidths=self.line_width, color='blue')
+            self.segments, linewidths=self.line_width, color='white')
         self.ax.add_collection(self.line_collection)
         self.celestial_object_positions = deque(
             [self.celestial_object.coordinate], maxlen=self.max_positions)

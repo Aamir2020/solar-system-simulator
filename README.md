@@ -30,9 +30,6 @@ python3 main.py
 - Saturn
 - Uranus
 - Neptune
-
-## TODO
-- Make the background black and add background stars
   
 <p align="center">
  <img src="./demo.gif"
