@@ -1,12 +1,15 @@
 from celestial_objects_plot import celestial_objects_plot
+from matplotlib.backend_bases import MouseEvent
+from matplotlib.axes import Axes
 from orbit_builder import orbit
+
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
 import numpy as np
 
 
-def zoom_factory(ax, base_scale):
-    def zoom(event):
+def zoom_factory(ax: Axes, base_scale: float):
+    def zoom(event: MouseEvent):
         current_xlim = ax.get_xlim()
         current_ylim = ax.get_ylim()
         xdata = event.xdata
@@ -27,8 +30,8 @@ def zoom_factory(ax, base_scale):
     fig.canvas.mpl_connect('scroll_event', zoom)
 
 
-def pan_factory(ax):
-    def onPress(event):
+def pan_factory(ax: Axes):
+    def onPress(event: MouseEvent):
         if event.inaxes != ax:
             return
         xdata = event.xdata
@@ -60,7 +63,7 @@ def pan_factory(ax):
 
 def update(frame):
 
-    list_of_plot_elements_to_return = []
+    list_of_plot_elements_to_return = []                               # Generic list
     list_of_final_coordinates = orbit.move_celestial_objects(
         [celestial_object_plot.get_celestial_object() for celestial_object_plot in list_of_celestial_object_plots])
     target = celestial_objects_plot.get_target_body()
@@ -110,7 +113,7 @@ def update_plot_axes(current_xlim, current_ylim, xdata, ydata, scale_factor):
 
 
 def recreate_bbox_after_zoom():
-    store_visibility = []
+    store_visibility: list[bool] = []
     for celestial_objects_plot_item in list_of_celestial_object_plots:
         store_visibility.append(
             celestial_objects_plot_item.get_celestial_object_text().get_visible())
@@ -122,7 +125,7 @@ def recreate_bbox_after_zoom():
 
 
 def handle_text_overlap(target):
-    overlapping_celestial_object_plots = set()
+    overlapping_celestial_object_plots: set[celestial_objects_plot] = set()
     for body_one_plot in list_of_celestial_object_plots:
         for body_two_plot in list_of_celestial_object_plots[list_of_celestial_object_plots.index(body_one_plot):]:
             if body_one_plot == body_two_plot:
@@ -171,7 +174,7 @@ if __name__ == '__main__':
     list_of_celestial_object_names = ["Sun", "Mercury", "Venus",
                                       "Earth", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune"]
 
-    list_of_celestial_object_plots = []
+    list_of_celestial_object_plots: list[celestial_objects_plot] = []
 
     for item in list_of_celestial_object_names:
         celestial_objects_plot_item = celestial_objects_plot(item, ax)

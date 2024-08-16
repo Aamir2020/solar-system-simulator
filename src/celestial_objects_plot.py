@@ -1,7 +1,13 @@
 from ephemeris_request_handler import ephemeris_request_handler_impl
+from matplotlib.backends.backend_agg import FigureCanvasAgg
+from matplotlib.collections import PathCollection
 from matplotlib.collections import LineCollection
 from celestial_object import celestial_object
+from matplotlib.transforms import Bbox
+from matplotlib.axes import Axes
+from matplotlib.text import Text
 from collections import deque
+
 import numpy as np
 
 
@@ -12,14 +18,14 @@ class celestial_objects_plot:
     count = 1
 
     @classmethod
-    def set_target_body_to_center(cls, celestial_object):
+    def set_target_body_to_center(cls, celestial_object: celestial_object):
         cls.target = celestial_object
 
     @classmethod
-    def get_target_body(cls):
+    def get_target_body(cls) -> celestial_object:
         return cls.target
 
-    def __init__(self, name, ax):
+    def __init__(self, name: str, ax: Axes):
         self.name = name
         self.ax = ax
         coordinate, velocity, mass = ephemeris_request_handler_impl.send_request(
@@ -46,10 +52,10 @@ class celestial_objects_plot:
         self.celestial_object_positions = deque(
             [self.celestial_object.coordinate], maxlen=self.max_positions)
 
-    def set_plot_offsets(self, final_coordinate):
+    def set_plot_offsets(self, final_coordinate: np.ndarray):
         self.celestial_object_scatter_plot.set_offsets(final_coordinate)
 
-    def add_updated_position_for_tracing(self, final_coordinate):
+    def add_updated_position_for_tracing(self, final_coordinate: np.ndarray):
         self.celestial_object_positions.append(final_coordinate)
 
     def set_trace_data(self):
@@ -57,7 +63,7 @@ class celestial_objects_plot:
         self.segments = np.concatenate([points[:-1], points[1:]], axis=1)
         self.line_collection.set_segments(self.segments)
 
-    def update_text_position(self, final_coordinate):
+    def update_text_position(self, final_coordinate: np.ndarray):
         if self.count > 0:
             self.recalculate_bounding_box()
             self.count -= 1
@@ -71,22 +77,23 @@ class celestial_objects_plot:
         self.bbox_template = bounding_box_template(
             bbox.x0, bbox.x1, bbox.width, bbox.height)
 
-    def get_celestial_object(self):
+    def get_celestial_object(self) -> celestial_object:
         return self.celestial_object
 
-    def get_celestial_object_scatter_plot(self):
+    def get_celestial_object_scatter_plot(self) -> PathCollection:
         return self.celestial_object_scatter_plot
 
-    def get_celestial_object_text(self):
+    def get_celestial_object_text(self) -> Text:
         return self.celestial_object_text
 
-    def get_text_bbox(self):
-        renderer = self.ax.figure.canvas.get_renderer()
+    def get_text_bbox(self) -> Bbox:
+        canvas: FigureCanvasAgg = self.ax.figure.canvas
+        renderer = canvas.get_renderer()
         bboxbase = self.celestial_object_text.get_window_extent(
             renderer=renderer)
         return bboxbase.transformed(self.ax.transData.inverted())
 
-    def is_text_overlapping(self, other_celestial_plot):
+    def is_text_overlapping(self, other_celestial_plot: 'celestial_objects_plot') -> bool:
         this_bbox = self.bbox_template
         other_bbox = other_celestial_plot.get_bbox_template()
 
@@ -98,12 +105,12 @@ class celestial_objects_plot:
 
         return overlap
 
-    def get_bbox_template(self):
+    def get_bbox_template(self) -> 'bounding_box_template':
         return self.bbox_template
 
 
 class bounding_box_template:
-    def __init__(self, x, y, width, height):
+    def __init__(self, x: np.float64, y: np.float64, width: np.float64, height: np.float64):
         self.x0 = x
         self.x1 = x + width
         self.y0 = y
@@ -111,7 +118,7 @@ class bounding_box_template:
         self.width = width
         self.height = height
 
-    def update_position(self, x, y):
+    def update_position(self, x: np.float64, y: np.float64):
         self.x0 = x
         self.x1 = x + self.width
         self.y0 = y

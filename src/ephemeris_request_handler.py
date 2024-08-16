@@ -1,7 +1,8 @@
-# Get Ephemeris of each planet
-import re
-import requests
 from datetime import datetime
+from typing import Tuple
+
+import requests
+import re
 
 
 class ephemeris_request_handler_impl:
@@ -22,9 +23,9 @@ class ephemeris_request_handler_impl:
     distance_conversion = 10**3
 
     @classmethod
-    def send_request(cls, celestial_objects):
+    def send_request(cls, celestial_object: str) -> Tuple[list, list, float]:
         cls.payload['CENTER'] = cls.solar_system_barycenter
-        cls.payload['COMMAND'] = cls.planetary_ids[celestial_objects][0]
+        cls.payload['COMMAND'] = cls.planetary_ids[celestial_object][0]
         cls.payload['TLIST'] = r"'%s'" % str(cls.date)
         reponse = requests.get(cls.url, params=cls.payload)
         content = reponse.json()
@@ -32,11 +33,11 @@ class ephemeris_request_handler_impl:
             raise Exception("Using the wrong API!")
         body = content['result']
         coordinate, velocity = cls.parse_reponse_body(body)
-        mass = cls.planetary_ids[celestial_objects][1]
+        mass = cls.planetary_ids[celestial_object][1]
         return coordinate, velocity, mass
 
     @classmethod
-    def parse_reponse_body(cls, body):
+    def parse_reponse_body(cls, body: str) -> Tuple[list, list]:
         coordinate = []
         velocity = []
         coordinate.append(

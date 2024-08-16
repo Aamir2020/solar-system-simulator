@@ -1,20 +1,22 @@
-import math
+from celestial_object import celestial_object
+
 import numpy as np
+import math
 
 
 class orbit:
 
-    # Gravitational Constant
     Gravitational_Constant = 6.67430*10**(-11)
     time_step = 24*60*60
 
     @classmethod
-    def move_celestial_objects(cls, list_of_celestial_objects):
-        list_of_final_velocities = []
-        list_of_final_coordinates = []
-        list_of_half_step_velocities = []
-        list_of_first_step_orbital_elements = []
-        list_of_second_step_accelerations = []
+    def move_celestial_objects(cls, list_of_celestial_objects: list[celestial_object]) -> list[np.ndarray]:
+        list_of_final_velocities: list[np.ndarray] = []
+        list_of_final_coordinates: list[np.ndarray] = []
+        list_of_half_step_velocities: list[np.ndarray] = []
+        list_of_first_step_orbital_elements: list[intermediate_orbital_state] = [
+        ]
+        list_of_second_step_accelerations: list[np.ndarray] = []
 
         # Finds half step velocity and full step orbital elements
         for body_one in list_of_celestial_objects:
@@ -87,7 +89,7 @@ class orbit:
 
 class intermediate_orbital_state:
 
-    def __init__(self, intermediate_coordinate, intermediate_velocity):
+    def __init__(self, intermediate_coordinate: np.ndarray, intermediate_velocity: np.ndarray):
         self.intermediate_coordinate = np.array(
             intermediate_coordinate, dtype=np.float64)
         self.intermediate_velocity = np.array(
