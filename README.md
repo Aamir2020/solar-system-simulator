@@ -1,10 +1,10 @@
 
 # Solar System Simulator
-This is a one-to-one two-dimensional simulation of our solar system. I utilized gravitational N-body simulation for its implementaion. This simulation doesn't include moons and asteroids. In addition, it doesn't consider the rotation of planets or their Roche limit.
+This is a one-to-one two-dimensional simulation of our solar system. I utilized gravitational N-body simulation for the implementaion. This simulation doesn't include moons and asteroids. In addition, it doesn't consider the rotation of planets or their Roche limit.
 
 The initial conditions for the planets are obtained from NASA's [horizon systems](https://ssd-api.jpl.nasa.gov/doc/horizons.html) API.
 
-The current simulation utilizes a leapfrog integration for numerically integrating gravitational differential.
+The current simulation utilizes a leapfrog integration for numerically integrating gravitational differentials.
 
 ## Installation
 
@@ -32,5 +32,5 @@ python3 main.py
 - Neptune
   
 <p align="center">
- <img src="./demo.gif"
+ <img src="./demonstration.gif"
 </p>

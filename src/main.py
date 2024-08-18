@@ -22,9 +22,13 @@ def zoom_factory(ax: Axes, image_object: AxesImage, base_scale: float):
             scale_factor = base_scale
         else:
             scale_factor = 1
-
-        x_range = update_plot_axes(
-            current_xlim, current_ylim, xdata, ydata, scale_factor, image_object)
+        target = celestial_objects_plot.get_target_body()
+        if target != None:
+            x_range = update_plot_axes(
+                current_xlim, current_ylim, target.coordinate[0], target.coordinate[1], scale_factor, image_object)
+        else:
+            x_range = update_plot_axes(
+                current_xlim, current_ylim, xdata, ydata, scale_factor, image_object)
         recreate_bbox_after_zoom()
         adjust_size_of_planets(x_range, base_scale)
 
@@ -161,21 +165,21 @@ def handle_text_overlap(target):
 
 def adjust_size_of_planets(x_range, base_scale):
     # Y = M*log(X)/log(base_scale) + C
-    max = 10000
-    min = 5
-    slope = -206.8599441
+    max = 100  # 10000
+    min = 3  # 9
+    slope = -2.00754523
     min_x_range = 6*10**8
     max_x_range = 6*10**10
-    intercept = 53858.81088
+    intercept = 525.7403356
     for celestial_objects_plot_item in list_of_celestial_object_plots:
         if x_range < min_x_range:
-            new_area = np.array([max], dtype=np.float64)
+            new_radius = np.array([max], dtype=np.float64)
         elif min_x_range <= x_range <= max_x_range:
-            new_area = slope*np.log(x_range)/np.log(base_scale) + intercept
-            new_area = np.array([new_area], dtype=np.float64)
+            new_radius = slope*np.log(x_range)/np.log(base_scale) + intercept
+            new_radius = np.array([new_radius], dtype=np.float64)
         elif x_range > max_x_range:
-            new_area = np.array([min], dtype=np.float64)
-        celestial_objects_plot_item.get_celestial_object_scatter_plot().set_sizes(new_area)
+            new_radius = np.array([min], dtype=np.float64)
+        celestial_objects_plot_item.get_celestial_object_scatter_plot().set_sizes(new_radius**2)
 
 
 if __name__ == '__main__':
@@ -186,7 +190,7 @@ if __name__ == '__main__':
 
     fig, ax = plt.subplots()
 
-    img = plt.imread("src/background_image.png")
+    img = plt.imread("background_image.png")
     image_object = ax.imshow(img, zorder=0, extent=[xmin,
                                                     xmax, ymin, ymax], aspect='auto')
 

@@ -13,9 +13,12 @@ import numpy as np
 
 class celestial_objects_plot:
 
-    text_offset = 10**10
+    text_offset = 2*10**9
     target = None
     count = 1
+    color_map = {'Sun': '#FFFFFF', 'Mercury': '#878787', 'Venus': '#D8C080',
+                 'Earth': '#2C6E8E', 'Mars': '#C1440E', 'Jupiter': '#D9A066',
+                 'Saturn': '#E8C999', 'Uranus': '#A3E2E8', 'Neptune': '#3B5BA9'}
 
     @classmethod
     def set_target_body_to_center(cls, celestial_object: celestial_object):
@@ -34,9 +37,9 @@ class celestial_objects_plot:
             name, coordinate, velocity, mass)
 
         self.celestial_object_scatter_plot = ax.scatter(
-            self.celestial_object.coordinate[0], self.celestial_object.coordinate[1], c="w", s=5, marker='o')
+            self.celestial_object.coordinate[0], self.celestial_object.coordinate[1], c=self.color_map[self.name], s=9, marker='o')
         self.celestial_object_text = ax.text(
-            self.celestial_object.coordinate[0], self.celestial_object.coordinate[1] + self.text_offset, name, c="w", clip_on=True)
+            self.celestial_object.coordinate[0], self.celestial_object.coordinate[1] + self.text_offset, name, c='#dbdbdb', clip_on=True)
 
         np_coordinate = np.array(coordinate, dtype=np.float64)
         distance = np.sqrt(np_coordinate.dot(np_coordinate))
@@ -47,7 +50,7 @@ class celestial_objects_plot:
             self.line_width = (0,)
         self.segments = []
         self.line_collection = LineCollection(
-            self.segments, linewidths=self.line_width, color='white')
+            self.segments, linewidths=self.line_width, color=self.color_map[self.name])
         self.ax.add_collection(self.line_collection)
         self.celestial_object_positions = deque(
             [self.celestial_object.coordinate], maxlen=self.max_positions)
