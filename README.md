@@ -1,10 +1,26 @@
 
 # Solar System Simulator
+
+<p align="center">
+ <img src="./demonstration.gif"
+</p>
+  
 This is a one-to-one two-dimensional simulation of our solar system. I utilized gravitational N-body simulation for the implementaion. This simulation doesn't include moons and asteroids. In addition, it doesn't consider the rotation of planets or their Roche limit.
 
 The initial conditions for the planets are obtained from NASA's [horizon systems](https://ssd-api.jpl.nasa.gov/doc/horizons.html) API.
 
 The current simulation utilizes a leapfrog integration for numerically integrating gravitational differentials.
+
+## The following celestial objects will be displayed
+- Sun
+- Mercury
+- Venus
+- Earth
+- Mars
+- Jupiter
+- Saturn
+- Uranus
+- Neptune
 
 ## Installation
 
@@ -19,18 +35,3 @@ To run the software, execute the following commands in the project directory
 cd src
 python3 main.py
 ```
-
-## The following celestial objects will be displayed
-- Sun
-- Mercury
-- Venus
-- Earth
-- Mars
-- Jupiter
-- Saturn
-- Uranus
-- Neptune
-  
-<p align="center">
- <img src="./demonstration.gif"
-</p>
